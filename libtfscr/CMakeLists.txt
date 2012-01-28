@@ -20,6 +20,11 @@ set (LibTfscrSources
 
 add_library(libtfscr STATIC ${LibTfscrSources})
 
+target_link_libraries(libtfscr
+	${LLVM_LFLAGS}
+	${LLVM_LIBRARIES}
+	${CLANG_LIBRARIES}
+)
 
 
 

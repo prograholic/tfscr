@@ -60,6 +60,11 @@ namespace tfscr
 			0));
 	}
 
+	ClangFacade::~ClangFacade()
+	{
+
+	}
+
 
 	void ClangFacade::parseAST(const std::string & fileName)
 	{

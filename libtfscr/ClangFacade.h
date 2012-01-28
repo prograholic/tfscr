@@ -25,6 +25,8 @@ namespace tfscr
 
 		ClangFacade();
 
+		~ClangFacade();
+
 
 		void parseAST(const std::string & fileName);
 
