@@ -10,10 +10,11 @@ namespace tfscr
 	{
 		if (VarDecl * vd = dyn_cast<VarDecl>(expr->getDecl()))
 		{
-			llvm::outs() << "variable declaration: " << vd->getName() << "\n";
+			mVarsList.push_back(vd);
 		}
 		else
 		{
+
 			llvm::outs() << "other expr: " << expr->getDecl()->getName() << "\n";
 		}
 	}
@@ -37,7 +38,10 @@ namespace tfscr
 			SourceRange loc = lhs->getSourceRange();
 			mAssignLocations.push_back(loc);
 
-	/*        if (ArraySubscriptExpr * arrSubscript = dyn_cast<ArraySubscriptExpr>(lhs))
+			Visit(lhs);
+
+			/*
+			if (ArraySubscriptExpr * arrSubscript = dyn_cast<ArraySubscriptExpr>(lhs))
 			{
 				llvm::outs() << "array subscript as lhs\n";
 			}
@@ -49,7 +53,8 @@ namespace tfscr
 		}
 		if (Expr * rhs = S->getRHS())
 		{
-			llvm::outs() << "  rhs: " << rhs->getStmtClassName() << "\n";
+			Visit(rhs);
+			//llvm::outs() << "  rhs: " << rhs->getStmtClassName() << "\n";
 		}
 	}
 
@@ -58,11 +63,23 @@ namespace tfscr
 		for (FunctionDecl::param_const_iterator it = fd->param_begin(); it != fd->param_end(); ++it)
 		{
 			ParmVarDecl * param = *it;
-			llvm::outs() << "param: ";
-			param->print(llvm::outs());
-			llvm::outs() << "\n";
+			mVarsList.push_back(param);
+			//llvm::outs() << "param: ";
+			//param->print(llvm::outs());
+			//llvm::outs() << "\n";
 		}
 		Visit(fd->getBody());
+	}
+
+
+	VarDeclList LocalVariablesVisitor::varList() const
+	{
+		return mVarsList;
+	}
+
+	SourceRangeList LocalVariablesVisitor::assignLocations() const
+	{
+		return mAssignLocations;
 	}
 }
 

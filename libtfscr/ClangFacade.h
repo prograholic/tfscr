@@ -17,6 +17,9 @@
 
 #include <boost/scoped_ptr.hpp>
 
+
+#include "CommonTypes.h"
+
 namespace tfscr
 {
 	class ClangFacade
@@ -27,9 +30,13 @@ namespace tfscr
 
 		~ClangFacade();
 
+		void parseAST(const char * fileName);
 
-		void parseAST(const std::string & fileName);
+		const char * fileName() const;
 
+		VarDeclList varList() const;
+
+		clang::SourceManager & sourceManager();
 
 	private:
 
@@ -59,6 +66,10 @@ namespace tfscr
 		boost::scoped_ptr<clang::Preprocessor> mPreprocessor;
 
 		boost::scoped_ptr<clang::ASTContext> mASTContext;
+
+
+
+		VarDeclList mVarDeclList;
 	};
 }
 

@@ -12,6 +12,7 @@ set (LibTfscrSources
 	LocalVariablesVisitor.h
 	CustomDiagnosticConsumer.cpp
 	CustomDiagnosticConsumer.h
+	CommonTypes.h
 )
 
 

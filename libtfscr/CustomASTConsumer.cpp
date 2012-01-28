@@ -68,6 +68,9 @@ namespace tfscr
 		{
 			visitor.process(*it);
 		}
+
+		mVarsList = visitor.varList();
+		mAssignLocations = visitor.assignLocations();
 	}
 
 	void CustomASTConsumer::HandleTagDeclDefinition(clang::TagDecl *D)
@@ -95,6 +98,16 @@ namespace tfscr
 	void CustomASTConsumer::PrintStats()
 	{
 		ASTConsumer::PrintStats();
+	}
+
+	VarDeclList CustomASTConsumer::varList() const
+	{
+		return mVarsList;
+	}
+
+	SourceRangeList CustomASTConsumer::assignLocations() const
+	{
+		return mAssignLocations;
 	}
 }
 

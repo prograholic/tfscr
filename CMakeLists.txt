@@ -24,7 +24,17 @@ include_directories(${BOOST_INCLUDE_DIR})
 add_definitions(${BOOST_DEFINITIONS})
 
 
+
 add_subdirectory(libtfscr)
+include_directories(libtfscr)
+
+
+find_package(Qt4 COMPONENTS QtCore QtGui)
+if (QT4_FOUND)
+	include(${QT_USE_FILE})
+
+	add_subdirectory(ui)
+endif()
 
 
 

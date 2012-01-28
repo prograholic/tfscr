@@ -66,7 +66,7 @@ namespace tfscr
 	}
 
 
-	void ClangFacade::parseAST(const std::string & fileName)
+	void ClangFacade::parseAST(const char * fileName)
 	{
 		const FileEntry * fileEntry = mFileManager.getFile(fileName);
 		mSourceManager->createMainFileID(fileEntry);
@@ -75,5 +75,27 @@ namespace tfscr
 		CustomASTConsumer astConsumer;
 
 		ParseAST(*mPreprocessor, &astConsumer, *mASTContext);
+
+		mVarDeclList = astConsumer.varList();
+	}
+
+
+	const char * ClangFacade::fileName() const
+	{
+		FileID fileId = mSourceManager->getMainFileID();
+		const FileEntry * fileEntry = mSourceManager->getFileEntryForID(fileId);
+
+		return fileEntry->getName();
+	}
+
+	VarDeclList ClangFacade::varList() const
+	{
+		return mVarDeclList;
+	}
+
+
+	SourceManager & ClangFacade::sourceManager()
+	{
+		return *mSourceManager;
 	}
 }

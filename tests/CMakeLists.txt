@@ -5,9 +5,6 @@ set (TfscrTestSources
 )
 
 
-include_directories(${TFSCR_ROOT_SOURCE_DIR}/libtfscr)
-
-
 add_executable(tfscr_test ${TfscrTestSources})
 
 target_link_libraries(tfscr_test

@@ -3,15 +3,11 @@
 
 
 #include <clang/AST/StmtVisitor.h>
-
-#include <list>
+#include "CommonTypes.h"
 
 namespace tfscr
 {
-	typedef std::list<clang::VarDecl *> VarDeclList;
 
-
-	typedef std::list<clang::SourceRange> SourceRangeList;
 
 	class LocalVariablesVisitor: public clang::StmtVisitor<LocalVariablesVisitor>
 	{
@@ -19,16 +15,16 @@ namespace tfscr
 
 		void VisitDeclRefExpr(clang::DeclRefExpr * expr);
 
-		void VisitStmt(clang::Stmt* stmt);
+		void VisitStmt(clang::Stmt * stmt);
 
 		void VisitBinAssign(clang::BinaryOperator * S);
 
 		void process(clang::FunctionDecl * fd);
 
 
-		VarDeclList varList();
+		VarDeclList varList() const;
 
-		SourceRangeList assignLocations();
+		SourceRangeList assignLocations() const;
 
 
 	private:
