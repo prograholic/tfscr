@@ -1,11 +1,13 @@
 
 
 
-typedef int myInt;
 
-void func1()
+char hhhh[200] = {0, 1, 2}
+
+
+void func1(const int * bugoga)
 {
-	char array[100500];
+	char array[100500] = {1, 2, 3};
 	char * ptr = array;
 	
 	
