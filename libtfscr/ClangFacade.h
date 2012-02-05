@@ -1,7 +1,9 @@
 #ifndef LIB_TFSCR_CLANG_FACADE_H
 #define LIB_TFSCR_CLANG_FACADE_H
 
-#include "CustomDiagnosticConsumer.h"
+#include <boost/scoped_ptr.hpp>
+
+
 
 #include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/HeaderSearch.h>
@@ -15,10 +17,10 @@
 
 #include <clang/Frontend/CompilerInstance.h>
 
-#include <boost/scoped_ptr.hpp>
 
 
-#include "CommonTypes.h"
+#include "CustomDiagnosticConsumer.h"
+#include "VariablesVisitor.h"
 
 namespace tfscr
 {
@@ -30,11 +32,7 @@ namespace tfscr
 
 		~ClangFacade();
 
-		void parseAST(const char * fileName);
-
-		const char * fileName() const;
-
-		VarDeclList varList() const;
+		void parseAST(const char * fileName, VariablesVisitor * visitor);
 
 		clang::SourceManager & sourceManager();
 
@@ -67,9 +65,6 @@ namespace tfscr
 
 		boost::scoped_ptr<clang::ASTContext> mASTContext;
 
-
-
-		VarDeclList mVarDeclList;
 	};
 }
 

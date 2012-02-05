@@ -8,11 +8,10 @@ set (LibTfscrSources
 	ClangFacade.h
 	CustomASTConsumer.cpp
 	CustomASTConsumer.h
-	LocalVariablesVisitor.cpp
-	LocalVariablesVisitor.h
+	VariablesVisitor.cpp
+	VariablesVisitor.h
 	CustomDiagnosticConsumer.cpp
 	CustomDiagnosticConsumer.h
-	CommonTypes.h
 )
 
 

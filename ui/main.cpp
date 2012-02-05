@@ -16,10 +16,8 @@ int main(int argc, char * argv [])
 	if (!file.isEmpty())
 	{
 		tfscr::ClangFacade clangFacade;
-		clangFacade.parseAST(file.toLocal8Bit().data());
 
-
-		MainWindow mainWindow(clangFacade);
+		MainWindow mainWindow(clangFacade, file);
 		mainWindow.show();
 		return app.exec();
 	}
