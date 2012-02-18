@@ -15,6 +15,7 @@ int main(int argc, char * argv [])
 	QString file = QFileDialog::getOpenFileName();
 	if (!file.isEmpty())
 	{
+
 		tfscr::ClangFacade clangFacade;
 
 		MainWindow mainWindow(clangFacade, file);

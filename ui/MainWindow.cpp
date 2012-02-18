@@ -3,6 +3,34 @@
 #include <QFile>
 #include <QTextDocument>
 #include <QTextBlock>
+#include <QMessageBox>
+
+
+#include "CustomDiagnosticConsumer.h"
+
+
+class WndDiagnosticListener: public tfscr::TfscrDiagnosticListener
+{
+public:
+
+	WndDiagnosticListener(Ui::MainWindow * window): mWindow(window)
+	{
+
+	}
+
+	virtual void onDiagnostic(const tfscr::DiagnosticInfo & info)
+	{
+		QString item = QString("%0 at %1:%2").arg(info.message.c_str()).arg(info.line).arg(info.column);
+
+		mWindow->listWidget->addItem(item);
+	}
+
+private:
+	Ui::MainWindow * mWindow;
+};
+
+
+
 
 MainWindow::MainWindow(tfscr::ClangFacade & clangFacade, const QString & fileName, QWidget * parent) :
 	QMainWindow(parent),
@@ -18,7 +46,18 @@ MainWindow::MainWindow(tfscr::ClangFacade & clangFacade, const QString & fileNam
 
 void MainWindow::repaintDocument()
 {
-	mClangFacade.parseAST(mFileName.toLocal8Bit().data(), this);
+	std::auto_ptr<WndDiagnosticListener> diagListener(new WndDiagnosticListener(this->ui));
+
+	tfscr::CustomDiagnosticConsumer * diagConsumer(new tfscr::CustomDiagnosticConsumer(diagListener.get()));
+	mClangFacade.compiler().getDiagnostics().setClient(diagConsumer);
+
+	diagListener.release();
+
+
+	if (!mClangFacade.parseAST(mFileName.toLocal8Bit().data(), this))
+	{
+		QMessageBox::warning(this, "Parsing failure", "parsing error occured");
+	}
 }
 
 
@@ -57,7 +96,7 @@ void MainWindow::onFunctionParam(clang::ParmVarDecl * param)
 
 void MainWindow::onVariableDeclaration(clang::VarDecl * varDecl)
 {
-	clang::PresumedLoc locStart = mClangFacade.sourceManager().getPresumedLoc(varDecl->getLocation());
+	clang::PresumedLoc locStart = mClangFacade.compiler().getSourceManager().getPresumedLoc(varDecl->getLocation());
 
 	QTextDocument * doc = ui->textEdit->document();
 	QTextBlock blkStart = doc->findBlockByLineNumber(locStart.getLine() - 1);
@@ -72,8 +111,8 @@ void MainWindow::onArraySubscriptExpr(clang::ArraySubscriptExpr * arraySubscript
 {
 	clang::SourceRange range = arraySubscriptExpr->getSourceRange();
 
-	clang::PresumedLoc locStart = mClangFacade.sourceManager().getPresumedLoc(range.getBegin());
-	clang::PresumedLoc locEnd = mClangFacade.sourceManager().getPresumedLoc(range.getEnd());
+	clang::PresumedLoc locStart = mClangFacade.compiler().getSourceManager().getPresumedLoc(range.getBegin());
+	clang::PresumedLoc locEnd = mClangFacade.compiler().getSourceManager().getPresumedLoc(range.getEnd());
 
 	QTextDocument * doc = ui->textEdit->document();
 

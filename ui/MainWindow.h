@@ -38,10 +38,6 @@ private:
 	void loadFile();
 
 
-
-
-
-
 	virtual void onFunctionParam(clang::ParmVarDecl * param);
 
 	virtual void onVariableDeclaration(clang::VarDecl * varDecl);

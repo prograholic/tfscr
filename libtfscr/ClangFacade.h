@@ -5,21 +5,14 @@
 
 
 
-#include <clang/Lex/Preprocessor.h>
+
 #include <clang/Lex/HeaderSearch.h>
-
-#include <clang/AST/ASTContext.h>
-
 #include <clang/Basic/LangOptions.h>
-#include <clang/Basic/FileSystemOptions.h>
-#include <clang/Basic/FileManager.h>
 #include <clang/Basic/TargetOptions.h>
-
+#include <clang/Basic/Builtins.h>
 #include <clang/Frontend/CompilerInstance.h>
 
 
-
-#include "CustomDiagnosticConsumer.h"
 #include "VariablesVisitor.h"
 
 namespace tfscr
@@ -27,44 +20,22 @@ namespace tfscr
 	class ClangFacade
 	{
 	public:
-
 		ClangFacade();
 
-		~ClangFacade();
+		bool parseAST(const char * fileName, VariablesVisitor * visitor);
 
-		void parseAST(const char * fileName, VariablesVisitor * visitor);
-
-		clang::SourceManager & sourceManager();
+		clang::CompilerInstance & compiler();
 
 	private:
 
-		llvm::IntrusiveRefCntPtr<clang::DiagnosticIDs> mDiagnosticIDs;
-		CustomDiagnosticConsumer mDiagnosticConsumer;
-		boost::scoped_ptr<clang::DiagnosticsEngine> mDiagnosticsEngine;
+		clang::CompilerInstance mCompiler;
 
 		clang::LangOptions mLangOptions;
-		clang::FileSystemOptions mFileSystemOptions;
-		clang::FileManager mFileManager;
-		boost::scoped_ptr<clang::SourceManager> mSourceManager;
-		clang::HeaderSearch mHeaderSearch;
-
-		clang::TargetOptions mTargetOptions;
-		boost::scoped_ptr<clang::TargetInfo> mTargetInfo;
-
-		clang::CompilerInstance mCompilerInstance;
-
 		clang::IdentifierTable mIdentifierTable;
 		clang::SelectorTable mSelectorTable;
 		clang::Builtin::Context mBuiltinContext;
-
-
-
-
-
-		boost::scoped_ptr<clang::Preprocessor> mPreprocessor;
-
-		boost::scoped_ptr<clang::ASTContext> mASTContext;
-
+		clang::TargetOptions mTargetOptions;
+		boost::scoped_ptr<clang::HeaderSearch> mHeaderSearch;
 	};
 }
 

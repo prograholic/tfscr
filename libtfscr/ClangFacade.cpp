@@ -1,11 +1,22 @@
 #include "ClangFacade.h"
 
-#include <clang/Parse/ParseAST.h>
-#include <clang/Basic/TargetInfo.h>
 
 #include <llvm/Support/Host.h>
 
+#include <clang/Parse/ParseAST.h>
+#include <clang/Basic/TargetInfo.h>
+
+#include <clang/Basic/FileManager.h>
+#include <clang/Basic/FileSystemOptions.h>
+
+#include <clang/Lex/Preprocessor.h>
+
+
+#include <clang/AST/ASTContext.h>
+
+
 #include "CustomASTConsumer.h"
+#include "CustomDiagnosticConsumer.h"
 
 using namespace clang;
 
@@ -13,72 +24,54 @@ using namespace clang;
 namespace tfscr
 {
 
+	ClangFacade::ClangFacade()
+		: mCompiler(),
+		  mLangOptions(),
+		  mIdentifierTable(mLangOptions),
+		  mSelectorTable(),
+		  mBuiltinContext(),
+		  mHeaderSearch()
 
-	ClangFacade::ClangFacade():
-		mDiagnosticIDs(),
-		mDiagnosticConsumer(),
-		mDiagnosticsEngine(new DiagnosticsEngine(mDiagnosticIDs, &mDiagnosticConsumer, false)),
-
-		mLangOptions(),
-		mFileSystemOptions(),
-		mFileManager(mFileSystemOptions),
-		mSourceManager(),
-		mHeaderSearch(mFileManager),
-
-		mTargetOptions(),
-		mTargetInfo(),
-
-		mCompilerInstance(),
-
-		mIdentifierTable(mLangOptions),
-		mSelectorTable(),
-		mBuiltinContext()
 	{
-		mSourceManager.reset(new SourceManager(*mDiagnosticsEngine, mFileManager));
+		mCompiler.setFileManager(new FileManager(FileSystemOptions()));
+
+		llvm::IntrusiveRefCntPtr<clang::DiagnosticIDs> diagnosticIDs;
+		std::auto_ptr<DiagnosticConsumer> consumer(new CustomDiagnosticConsumer);
+		mCompiler.setDiagnostics(new DiagnosticsEngine(diagnosticIDs, consumer.get()));
+		consumer.release();
+
+		mCompiler.setSourceManager(new SourceManager(mCompiler.getDiagnostics(), mCompiler.getFileManager()));
 
 		mTargetOptions.Triple = llvm::sys::getHostTriple();
-		mTargetInfo.reset(TargetInfo::CreateTargetInfo(*mDiagnosticsEngine, mTargetOptions));
+		mCompiler.setTarget(TargetInfo::CreateTargetInfo(mCompiler.getDiagnostics(), mTargetOptions));
 
-		mPreprocessor.reset(new Preprocessor(
-								*mDiagnosticsEngine,
-								mLangOptions,
-								mTargetInfo.get(),
-								*mSourceManager,
-								mHeaderSearch,
-								mCompilerInstance));
+		mCompiler.setASTContext(new ASTContext(mLangOptions, mCompiler.getSourceManager(),
+											   &mCompiler.getTarget(), mIdentifierTable,
+											   mSelectorTable, mBuiltinContext, 0));
 
 
-		mBuiltinContext.InitializeTarget(*mTargetInfo);
-
-		mASTContext.reset(new ASTContext(
-			mLangOptions,
-			*mSourceManager,
-			mTargetInfo.get(),
-			mIdentifierTable,
-			mSelectorTable,
-			mBuiltinContext,
-			0));
+		mHeaderSearch.reset(new HeaderSearch(mCompiler.getFileManager()));
+		mCompiler.setPreprocessor(new Preprocessor(mCompiler.getDiagnostics(), mLangOptions,
+												   &mCompiler.getTarget(), mCompiler.getSourceManager(),
+												   *mHeaderSearch, mCompiler));
 	}
 
-	ClangFacade::~ClangFacade()
-	{
 
+	CompilerInstance & ClangFacade::compiler()
+	{
+		return mCompiler;
 	}
 
-	void ClangFacade::parseAST(const char * fileName, VariablesVisitor *visitor)
-	{
-		const FileEntry * fileEntry = mFileManager.getFile(fileName);
-		mSourceManager->createMainFileID(fileEntry);
 
+	bool ClangFacade::parseAST(const char * fileName, VariablesVisitor * visitor)
+	{
+		const FileEntry * fileEntry = mCompiler.getFileManager().getFile(fileName);
+		mCompiler.getSourceManager().createMainFileID(fileEntry);
 
 		CustomASTConsumer astConsumer(visitor);
 
-		ParseAST(*mPreprocessor, &astConsumer, *mASTContext);
-	}
+		ParseAST(mCompiler.getPreprocessor(), &astConsumer, mCompiler.getASTContext());
 
-
-	SourceManager & ClangFacade::sourceManager()
-	{
-		return *mSourceManager;
+		return !mCompiler.getDiagnostics().hasFatalErrorOccurred();
 	}
 }
