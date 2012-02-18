@@ -16,10 +16,11 @@ include_directories(${GMOCK_INCLUDE_DIRS})
 
 set(TestFileList
 	test_data/test000000.c
+	test_data/test000001.cpp
 )
 
 
-generate_test_files_paths(TestFilePaths.h ${TestFileList})
+generate_test_files_paths(TestFilePaths.h "test_data")
 
 
 
