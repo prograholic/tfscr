@@ -15,7 +15,7 @@ namespace mocks
 
 		MOCK_METHOD1(onVariableDeclaration, void (clang::VarDecl * varDecl));
 
-		MOCK_METHOD1(onArraySubscriptExpr, void (clang::ArraySubscriptExpr * arraySubscriptExpr));
+		MOCK_METHOD1(onLhsInBinaryAssignment, void (clang::Expr * lhs));
 
 	};
 }

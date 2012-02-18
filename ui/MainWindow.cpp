@@ -40,20 +40,23 @@ MainWindow::MainWindow(tfscr::ClangFacade & clangFacade, const QString & fileNam
 {
 	setupUi();
 	setupSignals();
+	setupClang();
 
 	loadFile();
 }
 
-void MainWindow::repaintDocument()
+
+void MainWindow::setupClang()
 {
 	std::auto_ptr<WndDiagnosticListener> diagListener(new WndDiagnosticListener(this->ui));
 
 	tfscr::CustomDiagnosticConsumer * diagConsumer(new tfscr::CustomDiagnosticConsumer(diagListener.get()));
 	mClangFacade.compiler().getDiagnostics().setClient(diagConsumer);
-
 	diagListener.release();
+}
 
-
+void MainWindow::repaintDocument()
+{
 	if (!mClangFacade.parseAST(mFileName.toLocal8Bit().data(), this))
 	{
 		QMessageBox::warning(this, "Parsing failure", "parsing error occured");
@@ -107,9 +110,9 @@ void MainWindow::onVariableDeclaration(clang::VarDecl * varDecl)
 	repaintTextBlock(start, end, QColor(Qt::red));
 }
 
-void MainWindow::onArraySubscriptExpr(clang::ArraySubscriptExpr * arraySubscriptExpr)
+void MainWindow::onLhsInBinaryAssignment(clang::Expr * lhs)
 {
-	clang::SourceRange range = arraySubscriptExpr->getSourceRange();
+	clang::SourceRange range = lhs->getSourceRange();
 
 	clang::PresumedLoc locStart = mClangFacade.compiler().getSourceManager().getPresumedLoc(range.getBegin());
 	clang::PresumedLoc locEnd = mClangFacade.compiler().getSourceManager().getPresumedLoc(range.getEnd());

@@ -33,8 +33,16 @@ namespace tfscr
 		{
 			if (ArraySubscriptExpr * arrSubscript = dyn_cast<ArraySubscriptExpr>(lhs))
 			{
-				this->onArraySubscriptExpr(arrSubscript);
+				this->onLhsInBinaryAssignment(arrSubscript);
 				return true;
+			}
+			if (CXXOperatorCallExpr * operatorCall = dyn_cast<CXXOperatorCallExpr>(lhs))
+			{
+				if (operatorCall->getOperator() == OO_Subscript)
+				{
+					this->onLhsInBinaryAssignment(lhs);
+					return true;
+				}
 			}
 		}
 		if (Expr * rhs = S->getRHS())
@@ -46,6 +54,3 @@ namespace tfscr
 		return true;
 	}
 }
-
-
-

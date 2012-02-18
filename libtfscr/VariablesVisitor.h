@@ -22,7 +22,7 @@ namespace tfscr
 
 		virtual void onVariableDeclaration(clang::VarDecl * varDecl) = 0;
 
-		virtual void onArraySubscriptExpr(clang::ArraySubscriptExpr * arraySubscriptExpr) = 0;
+		virtual void onLhsInBinaryAssignment(clang::Expr * lhs) = 0;
 
 
 	};

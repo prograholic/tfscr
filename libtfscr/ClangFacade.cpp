@@ -51,6 +51,10 @@ namespace tfscr
 
 
 		mHeaderSearch.reset(new HeaderSearch(mCompiler.getFileManager()));
+
+		/// @note LangOptions must be set before constructiong Preprocessor
+		mLangOptions.CPlusPlus = 1;
+
 		mCompiler.setPreprocessor(new Preprocessor(mCompiler.getDiagnostics(), mLangOptions,
 												   &mCompiler.getTarget(), mCompiler.getSourceManager(),
 												   *mHeaderSearch, mCompiler));

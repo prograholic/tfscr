@@ -33,6 +33,7 @@ private:
 
 	void setupUi();
 	void setupSignals();
+	void setupClang();
 
 
 	void loadFile();
@@ -42,10 +43,12 @@ private:
 
 	virtual void onVariableDeclaration(clang::VarDecl * varDecl);
 
-	virtual void onArraySubscriptExpr(clang::ArraySubscriptExpr * arraySubscriptExpr);
+	virtual void onLhsInBinaryAssignment(clang::Expr * lhs);
 
 
 	void repaintTextBlock(int start, int end, const QColor & c);
+
+
 
 };
 
